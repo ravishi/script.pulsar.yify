@@ -17,10 +17,13 @@ TRACKERS = [
     'http://exodus.desync.com:6969/announce',
 ]
 
-# All results have the same rip type. I don't really know if
-# all they are ripped blurays, but since the API doesn't give us
-# that info, and I usually think YIFY rips are always awesome...
-DEFAULT_RIP_TYPE = provider.RIP_BLURAY
+# The API won't give us any type info, so we have to coin our on.
+# Now I don't really know if all YIFY rips are BRRips, but I want
+# them to have higher priority on Pulsar.
+RIP_TYPE = provider.RIP_BLURAY
+
+# Same thing with the scene rating. We wan't to look cool.
+SCENE_RATING = provider.RATING_PROPER
 
 
 def pulsarify(movie):
@@ -35,8 +38,8 @@ def pulsarify(movie):
         "resolution": pulsarify_resolution(t['resolution']),
         #"video_codec": int,
         #"audio_codec": int,
-        "rip_type": DEFAULT_RIP_TYPE,
-        "scene_rating": provider.RATING_PROPER,
+        "rip_type": RIP_TYPE,
+        "scene_rating": SCENE_RATING,
         #"language": '',
     } for t in movie['torrents'] if not t['quality'].strip().lower() == '3d']
 
@@ -60,9 +63,7 @@ def search_movie(movie):
 
     movies = r.json().get('data', {}).get('movies', [])
 
-    result = list(itertools.chain(*map(pulsarify, movies)))
-
-    return result
+    return list(itertools.chain(*map(pulsarify, movies)))
 
 
 provider.register(search, search_movie, search_episode)
